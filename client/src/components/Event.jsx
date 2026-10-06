@@ -1,58 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import '../css/Event.css'
 
-const Event = (props) => {
-
-    const [event, setEvent] = useState([])
-    const [time, setTime] = useState([])
-    const [remaining, setRemaining] = useState([])
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const eventData = await EventsAPI.getEventsById(props.id)
-                setEvent(eventData)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [])
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const result = await dates.formatTime(event.time)
-                setTime(result)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [event])
-
-    useEffect(() => {
-        (async () => {
-            try {
-                const timeRemaining = await dates.formatRemainingTime(event.remaining)
-                setRemaining(timeRemaining)
-                dates.formatNegativeTimeRemaining(remaining, event.id)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [event])
+const Event = ({ event }) => {
+    const eventDate = new Date(event.date)
 
     return (
         <article className='event-information'>
-            <img src={event.image} />
+            <img src={event.image} alt={event.name} />
 
             <div className='event-information-overlay'>
                 <div className='text'>
-                    <h3>{event.title}</h3>
-                    <p><i className="fa-regular fa-calendar fa-bounce"></i> {event.date} <br /> {time}</p>
-                    <p id={`remaining-${event.id}`}>{remaining}</p>
+                    <h3>{event.name}</h3>
+
+                    <p>
+                        {eventDate.toLocaleDateString()} at{' '}
+                        {eventDate.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </p>
+
+                    <p>{event.description}</p>
                 </div>
             </div>
         </article>

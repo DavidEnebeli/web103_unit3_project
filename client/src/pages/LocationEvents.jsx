@@ -1,10 +1,43 @@
 import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import Event from '../components/Event'
 import '../css/LocationEvents.css'
 
-const LocationEvents = ({index}) => {
+const LocationEvents = () => {
+    const { locationId } = useParams()
     const [location, setLocation] = useState([])
     const [events, setEvents] = useState([])
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await fetch(`/api/events/location/${locationId}`)
+                const data = await response.json()
+    
+                setEvents(data)
+            } catch (error) {
+                console.error('Error fetching events:', error)
+            }
+        }
+
+        const fetchLocation = async () => {
+            try {
+                const response = await fetch('/api/locations')
+                const data = await response.json()
+        
+                const currentLocation = data.find(
+                    location => location.id === Number(locationId)
+                )
+        
+                setLocation(currentLocation)
+            } catch (error) {
+                console.error('Error fetching location:', error)
+            }
+        }
+
+        fetchLocation()
+        fetchEvents()
+    }, [locationId])
 
     return (
         <div className='location-events'>
@@ -20,18 +53,16 @@ const LocationEvents = ({index}) => {
             </header>
 
             <main>
-                {
-                    events && events.length > 0 ? events.map((event, index) =>
-                        <Event
-                            key={event.id}
-                            id={event.id}
-                            title={event.title}
-                            date={event.date}
-                            time={event.time}
-                            image={event.image}
-                        />
-                    ) : <h2><i className="fa-regular fa-calendar-xmark fa-shake"></i> {'No events scheduled at this location yet!'}</h2>
-                }
+            {events.length > 0 ? (
+    events.map((event) => (
+        <Event
+            key={event.id}
+            event={event}
+        />
+    ))
+) : (
+    <h2>No events found for this location.</h2>
+)}
             </main>
         </div>
     )
